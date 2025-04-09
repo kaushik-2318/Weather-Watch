@@ -20,15 +20,4 @@ const getImage = async (condition: string) => {
     const data = await response.json();
     return data;
 }
-
-// const searchLocations = async (query: string) => {
-//     const response = await fetch(`${BASE_URL}/weather?q=${query}&appid=${API_KEY}`);
-//     const data = await response.json();
-//     return data;
-// }
-
 export { getWeather, getForecast, getImage };
-
-
-
-
