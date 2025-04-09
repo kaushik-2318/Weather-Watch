@@ -1,103 +1,232 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect, useCallback } from "react";
+import WeatherHeader from "@/components/WeaherHeader";
+import CurrentWeather from "@/components/CurrentWeather";
+import WeatherDetails from "@/components/WeatherDetails";
+import HourlyForecast from "@/components/HourlyForecast";
+import DailyForecast from "@/components/DailyForecast";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import CircularProgress from "@mui/material/CircularProgress";
+import { getWeather, getForecast } from "@/lib/api";
+
+type ForecastApiItem = {
+  dt: number;
+  dt_txt: string;
+  main: {
+    temp: number;
+    temp_min: number;
+    temp_max: number;
+  };
+  weather: { main: string; icon: string }[];
+};
+
+export default function WeatherDashboard() {
+  const [location, setLocation] = useState({ city: "", region: "" });
+  const [weather, setWeather] = useState<null | {
+    date: string;
+    temperature: number;
+    feelsLike: number;
+    description: string;
+    condition: string;
+    sunrise: string;
+    sunset: string;
+    details: {
+      windSpeed: string;
+      humidity: string;
+      pressure: string;
+      precipitation: string;
+    };
+  }>(null);
+  const [forecast, setForecast] = useState<{
+    hourly: {
+      time: string;
+      temp: number;
+      icon: string;
+    }[];
+    daily: {
+      day: string;
+      date: string;
+      minTemp: number;
+      maxTemp: number;
+      condition: string;
+      icon: string;
+    }[];
+  }>({ hourly: [], daily: [] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [units, setUnits] = useState("C");
+  const [language, setLanguage] = useState("EN");
+  const [backgroundImage, setBackgroundImage] = useState("");
+
+  const fetchWeatherData = useCallback(async (lat: number, lon: number) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const apiData = await getWeather(lat, lon);
+      const apiForecastData = await getForecast(lat, lon);
+
+      const currentWeather = {
+        date: new Date(apiData.dt * 1000).toLocaleDateString(),
+        temperature: Math.round(apiData.main.temp),
+        feelsLike: Math.round(apiData.main.feels_like),
+        description: apiData.weather[0].description,
+        condition: apiData.weather[0].main,
+        sunrise: new Date(apiData.sys.sunrise * 1000).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        sunset: new Date(apiData.sys.sunset * 1000).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        details: {
+          windSpeed: `${apiData.wind.speed} m/s`,
+          humidity: `${apiData.main.humidity}%`,
+          pressure: `${Math.round(apiData.main.pressure * 0.75006)} mm`,
+          precipitation: "0 mm",
+        },
+      };
+
+      setLocation({ city: apiData.name, region: apiData.sys.country });
+
+      const hourlyForecast = apiForecastData.list
+        .slice(0, 8)
+        .map((item: ForecastApiItem) => ({
+          time: new Date(item.dt * 1000).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          temp: Math.round(item.main.temp),
+          icon: mapWeatherIcon(item.weather[0].icon),
+        }));
+
+      const dailyForecast = apiForecastData.list
+        .filter((item: ForecastApiItem) => item.dt_txt.includes("12:00:00"))
+        .slice(0, 7)
+        .map((item: ForecastApiItem) => {
+          const date = new Date(item.dt * 1000);
+          return {
+            day: date
+              .toLocaleDateString("en-US", { weekday: "long" })
+              .toUpperCase(),
+            date: date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            }),
+            minTemp: Math.round(item.main.temp_min),
+            maxTemp: Math.round(item.main.temp_max),
+            condition: item.weather[0].main,
+            icon: mapWeatherIcon(item.weather[0].icon),
+          };
+        });
+
+      setWeather(currentWeather);
+      setForecast({ hourly: hourlyForecast, daily: dailyForecast });
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch weather data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          fetchWeatherData(lat, lon);
+        },
+        () => {
+          fetchWeatherData(28.6139, 77.209);
+        }
+      );
+    } else {
+      fetchWeatherData(28.6139, 77.209);
+    }
+  }, [fetchWeatherData]);
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 17) {
+      setBackgroundImage("/backgrounds/day.jpg");
+    } else if (hour >= 17 && hour < 20) {
+      setBackgroundImage("/backgrounds/evening.jpg");
+    } else {
+      setBackgroundImage("/backgrounds/night.jpg");
+    }
+  }, []);
+
+  const toggleUnits = () => setUnits(units === "C" ? "F" : "C");
+  const toggleLanguage = () => setLanguage(language === "EN" ? "RU" : "EN");
+
+  const mapWeatherIcon = (apiIcon: string) => {
+    if (apiIcon.includes("01")) return "sunny";
+    if (apiIcon.includes("02")) return "partly_cloudy";
+    if (apiIcon.includes("03") || apiIcon.includes("04")) return "cloudy";
+    if (apiIcon.includes("09") || apiIcon.includes("10")) return "light_rain";
+    if (apiIcon.includes("11")) return "thunderstorm";
+    if (apiIcon.includes("13")) return "snow";
+    if (apiIcon.includes("50")) return "fog";
+    return "cloudy";
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <ThemeProvider>
+      <div
+        className="min-h-screen w-full relative text-white"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-black/20 z-0" />
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <WeatherHeader
+            location={location}
+            units={units}
+            onToggleUnits={toggleUnits}
+            onToggleLanguage={toggleLanguage}
+          />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          {loading ? (
+            <div className="flex flex-1 items-center justify-center">
+              <CircularProgress sx={{ color: "white" }} />
+            </div>
+          ) : error ? (
+            <div className="flex flex-1 items-center justify-center">
+              <p className="text-red-500 text-lg font-semibold">{error}</p>
+            </div>
+          ) : (
+            <div className="max-w-6xl w-full mx-auto px-4 flex-1 flex flex-col">
+              <div className="flex flex-col md:flex-row gap-6 mt-6">
+                <div className="flex-1">
+                  {weather && (
+                    <CurrentWeather
+                      weather={weather}
+                      forecast={forecast.hourly}
+                      units={units}
+                    />
+                  )}
+                </div>
+                <div className="flex-1">
+                  {weather?.details && (
+                    <WeatherDetails details={weather.details} />
+                  )}
+                  <HourlyForecast forecast={forecast.hourly} units={units} />
+                </div>
+              </div>
+              <div className="mt-6 mb-6">
+                <DailyForecast forecast={forecast.daily} />
+              </div>
+            </div>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </ThemeProvider>
   );
 }
