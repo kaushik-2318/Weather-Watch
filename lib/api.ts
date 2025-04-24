@@ -1,23 +1,23 @@
+import { API_CONFIG } from "./config";
+const { BASE_URL, API_KEY, GEO } = API_CONFIG;
 
-const BASE_URL = "https://api.openweathermap.org/data/2.5";
 
-const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-
-const getWeather = async (lat: number, lon: number) => {
-    const response = await fetch(`${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`);
+const getWeather = async (lat: number, lon: number, units: string) => {
+    const response = await fetch(`${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${units}`);
     const data = await response.json();
     return data;
 }
 
-const getForecast = async (lat: number, lon: number) => {
-    const response = await fetch(`${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`);
+const getForecast = async (lat: number, lon: number, units: string) => {
+    const response = await fetch(`${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${units}`);
     const data = await response.json();
     return data;
 }
 
-const getImage = async (condition: string) => {
-    const response = await fetch(`https://openweathermap.org/img/wn/${condition}@2x.png`);
-    const data = await response.json();
-    return data;
+const searchLocation = async (query: string, units: string, country?: string | "") => {
+    console.log(`${GEO}/direct?q=${query},${country ? country : ""}&limit=5&appid=${API_KEY}&units=${units}`);
+    const response = await fetch(`${GEO}/direct?q=${query},${country ? country : ""}&limit=5&appid=${API_KEY}&units=${units}`);
+    return response;
 }
-export { getWeather, getForecast, getImage };
+
+export { getWeather, getForecast, searchLocation };
