@@ -24,6 +24,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { pollutantFullForms } from "@/lib/constants";
+import type { JSX } from "react";
 
 export default function DailyForecast() {
   const [hoveredDay, setHoveredDay] = useState<DailyForecastItem | null>(null);
@@ -208,8 +209,6 @@ export default function DailyForecast() {
             </span>{" "}
             with Next JS, Chart.js, and OpenWeatherAPI.
           </div>
-
-
         </div>
       </div>
     </>
