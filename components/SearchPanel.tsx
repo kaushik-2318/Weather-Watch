@@ -122,7 +122,7 @@ export default function SearchPanel({
         <input
           type="search"
           id="search"
-          className="block w-[600px] p-4 ps-10 text-sm text-white rounded-lg backdrop-blur-xl bg-black/40 outline-none"
+          className="block max-w-[600px] w-[350px] sm:w-[500px] lg:w-[600px] p-4 ps-10 text-sm text-white rounded-lg backdrop-blur-xl bg-black/40 outline-none"
           placeholder="Enter City..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
