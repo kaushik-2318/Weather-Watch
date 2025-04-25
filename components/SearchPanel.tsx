@@ -1,13 +1,17 @@
 "use client";
 
 import { Search } from "@mui/icons-material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import WeatherStore from "@/stores/weather-store";
 import LocationStore from "@/stores/location-store";
 import { searchLocation } from "@/lib/api";
+import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 interface SearchPanelProps {
   setSearchPanelOpen: (open: boolean) => void;
+  menuRef: React.RefObject<HTMLDivElement | null>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 interface LocationResult {
@@ -18,14 +22,17 @@ interface LocationResult {
   lon: number;
 }
 
-export default function SearchPanel({ setSearchPanelOpen }: SearchPanelProps) {
+export default function SearchPanel({
+  setSearchPanelOpen,
+  menuRef,
+  inputRef,
+}: SearchPanelProps) {
   const { updateLocation } = LocationStore();
   const { weatherData } = WeatherStore();
   const [searchResults, setSearchResults] = useState<LocationResult[]>([]);
   const [history, setHistory] = useState<
     { name: string; lat: number; lon: number }[]
   >([]);
-  const menuRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const [input, setInput] = useState("");
   const country = weatherData?.sys.country;
@@ -49,7 +56,6 @@ export default function SearchPanel({ setSearchPanelOpen }: SearchPanelProps) {
         const res = await searchLocation(query, "metric", country);
         const data = await res.json();
         if (data.length) {
-          console.log(data);
           setSearchResults(data);
         } else {
           setSearchResults([]);
@@ -64,6 +70,8 @@ export default function SearchPanel({ setSearchPanelOpen }: SearchPanelProps) {
         }
       } catch (error) {
         console.log(error);
+        toast.error("Error searching for location");
+        setError("No results found");
       }
     };
     const timer = setTimeout(() => handleSearch(input.trim()), 300);
@@ -94,7 +102,12 @@ export default function SearchPanel({ setSearchPanelOpen }: SearchPanelProps) {
   };
 
   return (
-    <div className="fixed z-40 flex items-center justify-center w-full h-screen overflow-hidden duration-500 backdrop-blur-xl">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed z-40 flex items-center justify-center w-full h-screen overflow-hidden duration-500 backdrop-blur-xl"
+      onClick={() => setSearchPanelOpen(false)}
+    >
       <label
         htmlFor="search"
         className="mb-2 text-sm font-medium text-gray-900 sr-only"
@@ -102,7 +115,7 @@ export default function SearchPanel({ setSearchPanelOpen }: SearchPanelProps) {
         Search
       </label>
 
-      <div className="relative">
+      <div className="relative" onClick={(e) => e.stopPropagation()}>
         <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
           <Search />
         </div>
@@ -113,6 +126,7 @@ export default function SearchPanel({ setSearchPanelOpen }: SearchPanelProps) {
           placeholder="Enter City..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          ref={inputRef}
         />
 
         {searchResults.length > 0 ? (
@@ -140,6 +154,6 @@ export default function SearchPanel({ setSearchPanelOpen }: SearchPanelProps) {
           </div>
         ) : null}
       </div>
-    </div>
+    </motion.div>
   );
 }

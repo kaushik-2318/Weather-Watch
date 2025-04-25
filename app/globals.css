@@ -158,3 +158,12 @@
     background-size: 20% 50%, 20% 50%, 20% 50%
   }
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

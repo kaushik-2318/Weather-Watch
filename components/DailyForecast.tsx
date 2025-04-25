@@ -59,7 +59,6 @@ export default function DailyForecast() {
         maxTemp: Math.round(item.main.temp_max),
         condition: item.weather[0].main,
         icon: mapWeatherIcon(item.weather[0].icon),
-
         feel: item.main.feels_like,
         pop: item.pop,
         wind: item.wind.speed,
@@ -105,6 +104,7 @@ export default function DailyForecast() {
         );
       case "rainy":
       case "rain":
+      case "light_rain":
       case "drizzle":
         return (
           <RainIcon

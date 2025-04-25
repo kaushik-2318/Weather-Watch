@@ -20,6 +20,7 @@ import {
 } from "@mui/icons-material";
 import { Badge } from "./ui/badge";
 import WeatherStore from "@/stores/weather-store";
+import LocationStore from "@/stores/location-store";
 import Loader from "./Loader";
 
 export default function CurrentWeather({
@@ -31,7 +32,8 @@ export default function CurrentWeather({
 }) {
   const [greeting, setGreeting] = useState("");
   const store: WeatherStoreType = WeatherStore();
-  const { weatherData, isLoading, airData } = store;
+  const { weatherData, isLoading, airData, fetchWeatherData } = store;
+  const { latitude, longitude } = LocationStore();
 
   useEffect(() => {
     const hour = weatherData?.dt
@@ -146,6 +148,14 @@ export default function CurrentWeather({
     level: getAirQualityLevel(airIndex),
   };
 
+  const handleRefresh = () => {
+    fetchWeatherData({
+      lat: latitude ?? 0,
+      lon: longitude ?? 0,
+      unit: store.unit,
+    });
+  };
+
   return (
     <div>
       <Card
@@ -173,7 +183,9 @@ export default function CurrentWeather({
                     />
                     <div>
                       <Button
-                        onClick={() => {}}
+                        onClick={() => {
+                          handleRefresh();
+                        }}
                         className="rounded-full cursor-pointer p-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-300  text-gray-300 hover:text-white hover:rotate-12"
                       >
                         <Refresh />

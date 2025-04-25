@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import WeatherHeader from "@/components/WeaherHeader";
+import { useState, useEffect, useCallback, useRef } from "react";
+import WeatherHeader from "@/components/WeatherHeader";
 import CurrentWeather from "@/components/CurrentWeather";
 import LineGraph from "@/components/LineGraph";
 import PieGraph from "@/components/PieGraph";
@@ -11,6 +11,8 @@ import LocationStore from "@/stores/location-store";
 import SearchPanel from "@/components/SearchPanel";
 import { WeatherStoreType } from "@/lib/types";
 import DailyForecast from "@/components/DailyForecast";
+import toast from "react-hot-toast";
+import PreLoader from "@/components/PreLoader";
 
 export default function WeatherDashboard() {
   const store: WeatherStoreType = WeatherStore();
@@ -26,6 +28,9 @@ export default function WeatherDashboard() {
 
   const [background, setBackgroundImage] = useState<string | null>(null);
   const [searchPanelOpen, setSearchPanelOpen] = useState(false);
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchMenuRef = useRef<HTMLInputElement>(null);
 
   const fetchData = useCallback(
     async ({ lat, lon, unit }: { lat: number; lon: number; unit: string }) => {
@@ -34,19 +39,19 @@ export default function WeatherDashboard() {
     [fetchWeatherData]
   );
 
-  const getCityByIP = async () => {
+  const getCityByIP = useCallback(async () => {
     try {
       const response = await fetch("https://ipapi.co/json/");
       const data = await response.json();
       updateLocation(data.latitude, data.longitude);
       currentCoordinate(data.latitude, data.longitude);
-    } catch (error) {
-      console.error("Failed to fetch location by IP:", error);
-      throw new Error("Unable to fetch location by IP");
+    } catch (err) {
+      console.error("Error fetching location by IP:", err);
+      toast.error("Unable to fetch location by IP");
     }
-  };
+  }, [updateLocation, currentCoordinate]);
 
-  const getUserLocation = async () => {
+  const getUserLocation = useCallback(async () => {
     if (!navigator.geolocation) {
       throw new Error("Geolocation is not supported by your browser");
     }
@@ -63,14 +68,15 @@ export default function WeatherDashboard() {
       updateLocation(lat, lon);
       currentCoordinate(lat, lon);
     } catch (error) {
+      toast.error("Unable to fetch location");
       console.error("Error getting location:", error);
       await getCityByIP();
     }
-  };
+  }, [updateLocation, currentCoordinate, getCityByIP]);
 
   useEffect(() => {
     getUserLocation();
-  }, []);
+  }, [getUserLocation]);
 
   useEffect(() => {
     if (latitude && longitude) {
@@ -96,17 +102,47 @@ export default function WeatherDashboard() {
     } else if (hour >= 16 && hour < 19) {
       setBackgroundImage("/backgrounds/evening.jpg");
     } else {
-      setBackgroundImage("/backgrounds/night.jpg");
+      setBackgroundImage("/backgrounds/morning.png");
     }
   }, []);
 
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        searchMenuRef.current &&
+        !searchMenuRef.current.contains(e.target as Node) &&
+        searchButtonRef.current &&
+        !searchButtonRef.current.contains(e.target as Node) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(e.target as Node)
+      ) {
+        setSearchPanelOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+    };
+  }, [searchMenuRef, searchButtonRef, searchInputRef]);
+
+  useEffect(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  });
+
   return (
     <>
+      <PreLoader />
       {searchPanelOpen && (
-        <SearchPanel setSearchPanelOpen={setSearchPanelOpen} />
+        <SearchPanel
+          setSearchPanelOpen={setSearchPanelOpen}
+          menuRef={searchMenuRef}
+          inputRef={searchInputRef}
+        />
       )}
       <div
-        className={`min-h-screen`}
+        className="overflow-auto no-scrollbar max-h-screen"
         style={{
           backgroundImage: `url(${background})`,
           backgroundSize: "cover",
@@ -118,6 +154,9 @@ export default function WeatherDashboard() {
           <WeatherHeader
             searchPanelOpen={searchPanelOpen}
             setSearchPanelOpen={setSearchPanelOpen}
+            searchButtonRef={
+              searchButtonRef as React.RefObject<HTMLButtonElement>
+            }
           />
         </div>
         <div className="p-4 pt-24">

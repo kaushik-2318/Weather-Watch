@@ -15,7 +15,6 @@ const getForecast = async (lat: number, lon: number, units: string) => {
 }
 
 const searchLocation = async (query: string, units: string, country?: string | "") => {
-    console.log(`${GEO}/direct?q=${query},${country ? country : ""}&limit=5&appid=${API_KEY}&units=${units}`);
     const response = await fetch(`${GEO}/direct?q=${query},${country ? country : ""}&limit=5&appid=${API_KEY}&units=${units}`);
     return response;
 }
