@@ -17,12 +17,18 @@ import WeatherStore from "@/stores/weather-store";
 import Link from "next/link";
 import { Card, CardContent, CardTitle } from "./ui/card";
 import { useState } from "react";
-import { Gauge } from "lucide-react";
+import { ArrowDown, ArrowUp, Gauge } from "lucide-react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { pollutantFullForms } from "@/lib/constants";
 
 export default function DailyForecast() {
   const [hoveredDay, setHoveredDay] = useState<DailyForecastItem | null>(null);
   const store: WeatherStoreType = WeatherStore();
-  const { forecastData } = store;
+  const { forecastData, airData } = store;
 
   const mapWeatherIcon = (apiIcon: string) => {
     if (apiIcon.includes("01")) return "sunny";
@@ -35,7 +41,6 @@ export default function DailyForecast() {
     return "cloudy";
   };
 
-  console.log(forecastData);
   const dailyForecast = forecastData?.list
     .filter((item) => item.dt_txt.includes("12:00:00"))
     .slice(0, 7)
@@ -139,14 +144,14 @@ export default function DailyForecast() {
 
   return (
     <>
-      <div className="flex gap-10 flex-col md:flex-row items-center justify-center h-[270px]">
-        <div className="w-[60%]">
+      <div className="flex gap-10 flex-col xl:flex-row items-center justify-center xl:h-[270px]">
+        <div className="xl:w-[60%] w-full overflow-hidden">
           <Card className="bg-white/10 backdrop-blur-lg border border-white/10 shadow-lg transition-all duration-500">
             <CardTitle>
               <h1 className="px-7">5 Day Forecast</h1>
             </CardTitle>
             <CardContent>
-              <div className="flex duration-500 gap-2.5">
+              <div className="flex duration-500 justify-between w-full overflow-hidden overflow-x-visible gap-5">
                 {dailyForecast?.map((day, index) => (
                   <div
                     key={index}
@@ -157,9 +162,11 @@ export default function DailyForecast() {
                     <p className="font-bold text-sm mb-1">{day.day}</p>
                     <p className="text-xs opacity-70 mb-3">{day.date}</p>
                     <div className="flex justify-center gap-2 mb-2 text-sm">
-                      <span className="opacity-70">min: +{day.minTemp}°</span>
-                      <span className="font-semibold">
-                        max: +{day.maxTemp}°
+                      <span className="opacity-70 flex items-center text-blue-500">
+                        <ArrowDown className="mr-1 h-4 w-4" /> +{day.minTemp}°
+                      </span>
+                      <span className="font-semibold flex items-center text-red-500">
+                        <ArrowUp className="mr-1 h-4 w-4" />+{day.maxTemp}°
                       </span>
                     </div>
                     <div className="h-12 flex items-center justify-center mb-2">
@@ -173,73 +180,26 @@ export default function DailyForecast() {
           </Card>
         </div>
 
-        <div className="flex flex-col justify-between items-center md:w-[40%] h-full">
+        <div className="flex flex-col justify-between items-center xl:w-[40%] h-full w-full">
           <div className="h-full w-full">
             <Card className="h-full w-full bg-white/10 backdrop-blur-lg border border-white/10 shadow-lg transition-all duration-500">
               <CardTitle>
-                <h1 className="px-7 text-center">More Detail</h1>
+                <h1 className="text-center">More Detail</h1>
               </CardTitle>
-              <CardContent className="text-sm px-7 py-3">
+              <CardContent className="text-sm px-7 h-full">
                 {hoveredDay ? (
-                  <div className="flex flex-row justify-center items-center gap-10 text-base">
-                    <div className="h-20 flex items-center justify-center mb-2">
-                      {getWeatherIcon(hoveredDay.icon)}
-                    </div>
-                    <div className="flex flex-col">
-                      <div className="flex  items-center gap-2">
-                        <WindIcon
-                          color="primary"
-                          fontSize={"small"}
-                          className="w-5 h-5"
-                        />
-                        Wind: {hoveredDay.wind} m/s
-                      </div>
-                      <div className="flex  items-center gap-2">
-                        <HumidityIcon
-                          color="primary"
-                          fontSize={"small"}
-                          className="w-5 h-5"
-                        />
-                        Humidity:{hoveredDay.humidity}%
-                      </div>
-                      <div className="flex  items-center gap-2">
-                        <VisibilityIcon
-                          color="primary"
-                          fontSize={"small"}
-                          className="w-5 h-5"
-                        />
-                        Visibility
-                        {hoveredDay.visibility} m
-                      </div>
-                    </div>
-                    <div className="flex flex-col">
-                      <div className="flex  items-center gap-2">
-                        <TempIcon sx={{ fontSize: "0.8rem !important" }} />
-                        Feels Like: {hoveredDay.feel}°
-                      </div>
-                      <div className="flex  items-center gap-2">
-                        <WaterDropIcon
-                          color="primary"
-                          fontSize={"small"}
-                          className="w-5 h-5"
-                        />
-                        Pop: {hoveredDay.pop}%
-                      </div>
-                      <div className="flex  items-center gap-2">
-                        <Gauge size={20} color="#007bff" strokeWidth={2} />
-                        Pressure: {hoveredDay.pressure} hPa
-                      </div>
-                    </div>
-                  </div>
+                  <MoreDetail
+                    hoveredDay={hoveredDay}
+                    getWeatherIcon={getWeatherIcon}
+                  />
                 ) : (
-                  <p className="opacity-70 text-center">
-                    Hover over a forecast card to learn more.
-                  </p>
+                  <AirDetail airData={airData} />
                 )}
               </CardContent>
             </Card>
           </div>
-          <div className="text-sm text-center flex gap-1 justify-center items-center w-full h-10">
+
+          <div className="text-sm text-center w-full h-10 py-4">
             Designed and Built by{" "}
             <span className="text-blue-500 underline font-bold">
               <Link href="https://kaushikverma.me/" target="_blank">
@@ -248,8 +208,101 @@ export default function DailyForecast() {
             </span>{" "}
             with Next JS, Chart.js, and OpenWeatherAPI.
           </div>
+
+
         </div>
       </div>
     </>
   );
 }
+
+const AirDetail = ({ airData }: { airData: WeatherStoreType["airData"] }) => {
+  return (
+    <div className="flex flex-col gap-2">
+      <h1 className="text-base font-semibold tracking-wider">
+        Сoncentration of
+      </h1>
+      <div className="grid grid-cols-2 gap-2 ml-10 text-sm ">
+        {airData?.list[0]?.components &&
+          Object.entries(airData.list[0].components).map(
+            ([name, value], index) => (
+              <div key={index}>
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <span className="cursor-pointer">
+                      {name.toUpperCase()}: {value} μg/m
+                      <sub>3</sub>
+                    </span>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="bg-transparent backdrop-blur-2xl w-full text-xs">
+                    Сoncentration of{" "}
+                    <strong>
+                      {pollutantFullForms[name] || name.toUpperCase()}
+                    </strong>{" "}
+                    in air : {value}
+                    μg/m<sub>3</sub>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
+            )
+          )}
+      </div>
+    </div>
+  );
+};
+
+const MoreDetail = ({
+  hoveredDay,
+  getWeatherIcon,
+}: {
+  hoveredDay: DailyForecastItem;
+  getWeatherIcon: (condition: string) => JSX.Element;
+}) => {
+  return (
+    <div className="flex flex-row justify-center items-center gap-5 md:gap-10 xl:gap-5 text-base h-full w-full">
+      <div className="h-20 flex items-center justify-center mb-2">
+        {getWeatherIcon(hoveredDay.icon)}
+      </div>
+      <div className="flex flex-col justify-start items-start gap-3">
+        <div className="flex  items-center gap-2">
+          <WindIcon color="primary" fontSize={"small"} className="w-5 h-5" />
+          Wind: {hoveredDay.wind} m/s
+        </div>
+        <div className="flex  items-center gap-2">
+          <HumidityIcon
+            color="primary"
+            fontSize={"small"}
+            className="w-5 h-5"
+          />
+          Humidity: {hoveredDay.humidity}%
+        </div>
+        <div className="flex  items-center gap-2">
+          <VisibilityIcon
+            color="primary"
+            fontSize={"small"}
+            className="w-5 h-5"
+          />
+          Visibility: {hoveredDay.visibility} m
+        </div>
+      </div>
+      <div className="flex flex-col gap-3">
+        <div className="flex  items-center gap-2">
+          <TempIcon sx={{ fontSize: "0.8rem !important" }} />
+          Feels Like: {hoveredDay.feel}°
+        </div>
+        <div className="flex  items-center gap-2">
+          <WaterDropIcon
+            color="primary"
+            fontSize={"small"}
+            className="w-5 h-5"
+          />
+          Precipitation: {hoveredDay.pop}%
+        </div>
+        <div className="flex  items-center gap-2">
+          <Gauge size={20} color="#007bff" strokeWidth={2} />
+          Pressure: {hoveredDay.pressure} hPa
+        </div>
+      </div>
+    </div>
+  );
+};

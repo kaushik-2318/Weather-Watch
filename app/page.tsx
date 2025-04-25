@@ -121,26 +121,25 @@ export default function WeatherDashboard() {
           />
         </div>
         <div className="p-4 pt-24">
-          <div className="flex gap-10 flex-col md:flex-row items-center justify-center">
-            <div className="md:w-[60%]">
+          <div className="flex gap-10 flex-col xl:flex-row items-center justify-center">
+            <div className="xl:w-[60%] ">
               <CurrentWeather units={unit} onToggleUnits={toggleUnits} />
             </div>
-            <div className="flex flex-col gap-5 md:w-[40%]">
+            <div className="flex flex-col gap-5 xl:w-[40%] w-full">
               <div className="h-[230px]">
                 <LineGraph />
               </div>
-              <div className="flex h-[230px] gap-5">
-                <div className="h-[230px] p-2 w-[60%] shadow-sm border bg-white/10 rounded-xl">
+              <div className="flex flex-col sm:flex-row gap-5">
+                <div className="h-[230px] p-2 w-full sm:w-[60%] shadow-sm border bg-white/10 rounded-xl">
                   <RadarGraph />
                 </div>
-                <div className="h-[230px] p-2 w-[40%] shadow-sm border bg-white/10 rounded-xl">
+                <div className="h-[230px] p-2 w-full sm:w-[40%] shadow-sm border bg-white/10 rounded-xl">
                   <PieGraph />
                 </div>
               </div>
             </div>
           </div>
         </div>
-
         <div className="w-full p-4">
           <DailyForecast />
         </div>

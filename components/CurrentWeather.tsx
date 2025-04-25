@@ -31,7 +31,7 @@ export default function CurrentWeather({
 }) {
   const [greeting, setGreeting] = useState("");
   const store: WeatherStoreType = WeatherStore();
-  const { weatherData, isLoading } = store;
+  const { weatherData, isLoading, airData } = store;
 
   useEffect(() => {
     const hour = weatherData?.dt
@@ -122,14 +122,30 @@ export default function CurrentWeather({
     }
   };
 
-  const airQuality = {
-    index: Math.floor(Math.random() * 150) + 20,
-    level: function () {
-      if (this.index <= 50) return { text: "Good", color: "#48bb78" };
-      if (this.index <= 100) return { text: "Moderate", color: "#FFEB3B" };
-      return { text: "Poor", color: "#f44336" };
-    },
+  const airIndex = airData?.list?.[0]?.main?.aqi ?? 1;
+
+  const getAirQualityLevel = (index: number) => {
+    switch (index) {
+      case 1:
+        return { text: "Good", color: "#48bb78" };
+      case 2:
+        return { text: "Fair", color: "#a3e635" };
+      case 3:
+        return { text: "Moderate", color: "#facc15" };
+      case 4:
+        return { text: "Poor", color: "#f97316" };
+      case 5:
+        return { text: "Very Poor", color: "#ef4444" };
+      default:
+        return { text: "Unknown", color: "#9ca3af" };
+    }
   };
+
+  const airQuality = {
+    index: airIndex,
+    level: getAirQualityLevel(airIndex),
+  };
+
   return (
     <div>
       <Card
@@ -286,22 +302,22 @@ export default function CurrentWeather({
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-black/40 backdrop-blur-sm border border-black/40">
+                  <div className="p-4 rounded-2xl bg-black/40 backdrop-blur-sm border">
                     <div className="flex justify-between items-center text-sm text-white">
                       <span>Air Quality Index</span>
                       <span
-                        className={`px-2 py-1 rounded-full text-white`}
-                        style={{ backgroundColor: airQuality.level().color }}
+                        className="px-2 py-1 rounded-full text-white text-center"
+                        style={{ backgroundColor: airQuality.level.color }}
                       >
-                        {airQuality.level().text}
+                        {airQuality.level.text}
                       </span>
                     </div>
                     <div className="mt-2 h-2 rounded-full bg-white/10 overflow-hidden">
                       <div
-                        className={`h-full rounded-full  transition-all duration-1000  `}
+                        className="h-full rounded-full transition-all duration-1000"
                         style={{
-                          width: `${Math.min(airQuality.index / 2, 100)}%`,
-                          backgroundColor: airQuality.level().color,
+                          width: `${(airQuality.index / 5) * 100}%`,
+                          backgroundColor: airQuality.level.color,
                         }}
                       />
                     </div>

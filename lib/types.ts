@@ -93,6 +93,30 @@ type WeatherApiItem = {
     cod: number;
 };
 
+type AirQualityApiItem = {
+    coord: {
+        lon: number;
+        lat: number;
+    };
+    list: {
+        dt: number;
+        main: {
+            aqi: number;
+        };
+        components: {
+            co: number;
+            no: number;
+            no2: number;
+            o3: number;
+            so2: number;
+            pm2_5: number;
+            pm10: number;
+            nh3: number;
+        };
+    }[];
+};
+
+
 type WeatherStoreType = {
     weatherData: WeatherApiItem | null;
     forecastData: ForecastApiItem | null;
@@ -101,6 +125,7 @@ type WeatherStoreType = {
     unit: string;
     currentlat: number | null;
     currentlon: number | null;
+    airData: AirQualityApiItem | null;
     currentCoordinate: (currentlat: number, currentlon: number) => void;
     setUnit: (unit: string) => void;
     fetchWeatherData: ({ lat, lon, unit }: { lat: number; lon: number; unit: string }) => Promise<void>;
@@ -128,4 +153,4 @@ type DailyForecastItem = {
 };
 
 
-export type { ForecastApiItem, WeatherApiItem, WeatherStoreType, LoacationStoreType, DailyForecastItem };
+export type { ForecastApiItem, WeatherApiItem, WeatherStoreType, LoacationStoreType, DailyForecastItem, AirQualityApiItem };

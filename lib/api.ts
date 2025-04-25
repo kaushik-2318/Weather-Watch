@@ -20,4 +20,10 @@ const searchLocation = async (query: string, units: string, country?: string | "
     return response;
 }
 
-export { getWeather, getForecast, searchLocation };
+const getAirQuality = async (lat: number, lon: number) => {
+    const response = await fetch(`${BASE_URL}/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`);
+    const data = await response.json();
+    return data;
+}
+
+export { getWeather, getForecast, searchLocation, getAirQuality };

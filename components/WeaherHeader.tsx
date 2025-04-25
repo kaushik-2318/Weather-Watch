@@ -48,14 +48,14 @@ export default function WeatherHeader({
   return (
     <>
       <nav className="fixed w-full flex justify-center items-center z-50">
-        <div className="flex items-center justify-between w-[98%] px-10 py-3 mt-3 backdrop-blur-md bg-black/10 text-white rounded-3xl">
-          <h1 className="text-lg font-bold tracking-widest">Weather Watch</h1>
+        <div className="flex items-center justify-between w-[98%] px-4 md:px-10 py-3 mt-3 backdrop-blur-md bg-black/10 text-white rounded-3xl">
+          <h1 className="text-sm md:text-lg font-bold tracking-widest ">Weather Watch</h1>
           {data && (
             <div
               onClick={() => {
                 handleClick();
               }}
-              className="flex items-center gap-1 text-sm hover:underline cursor-pointer"
+              className="flex items-center gap-1 hover:underline cursor-pointer text-xs md:text-sm"
             >
               <LocationOnIcon fontSize="small" />
               <span>
@@ -64,7 +64,7 @@ export default function WeatherHeader({
             </div>
           )}
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
             <Button
               variant={"ghost"}
               className="cursor-pointer"

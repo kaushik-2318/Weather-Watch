@@ -1,4 +1,4 @@
-import { getForecast, getWeather } from '@/lib/api'
+import { getForecast, getWeather, getAirQuality } from '@/lib/api'
 import { create } from 'zustand';
 import { WeatherStoreType } from '@/lib/types';
 
@@ -6,6 +6,7 @@ const WeatherStore = create<WeatherStoreType>((set) => (
     {
         weatherData: null,
         forecastData: null,
+        airData: null,
         isLoading: true,
         error: null,
         unit: 'metric',
@@ -18,7 +19,8 @@ const WeatherStore = create<WeatherStoreType>((set) => (
                 set({ isLoading: true });
                 const weather = await getWeather(lat, lon, unit);
                 const forecast = await getForecast(lat, lon, unit);
-                set({ weatherData: weather, forecastData: forecast, isLoading: false });
+                const airQuality = await getAirQuality(lat, lon);
+                set({ weatherData: weather, forecastData: forecast, airData: airQuality, isLoading: false });
             } catch (error) {
                 set({ error: error instanceof Error ? error.message : String(error), isLoading: false });
             } finally {
