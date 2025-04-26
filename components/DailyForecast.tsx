@@ -29,7 +29,7 @@ import type { JSX } from "react";
 export default function DailyForecast() {
   const [hoveredDay, setHoveredDay] = useState<DailyForecastItem | null>(null);
   const store: WeatherStoreType = WeatherStore();
-  const { forecastData, airData } = store;
+  const { forecastData, airData, unit } = store;
 
   const mapWeatherIcon = (apiIcon: string) => {
     if (apiIcon.includes("01")) return "sunny";
@@ -192,6 +192,7 @@ export default function DailyForecast() {
                   <MoreDetail
                     hoveredDay={hoveredDay}
                     getWeatherIcon={getWeatherIcon}
+                    unit={unit}
                   />
                 ) : (
                   <AirDetail airData={airData} />
@@ -253,9 +254,11 @@ const AirDetail = ({ airData }: { airData: WeatherStoreType["airData"] }) => {
 const MoreDetail = ({
   hoveredDay,
   getWeatherIcon,
+  unit,
 }: {
   hoveredDay: DailyForecastItem;
   getWeatherIcon: (condition: string) => JSX.Element;
+  unit: string;
 }) => {
   return (
     <div className="flex flex-row justify-center items-center gap-5 md:gap-10 xl:gap-5 text-base h-full w-full">
@@ -265,7 +268,7 @@ const MoreDetail = ({
       <div className="flex flex-col justify-start items-start gap-3">
         <div className="flex  items-center gap-2">
           <WindIcon color="primary" fontSize={"small"} className="w-5 h-5" />
-          Wind: {hoveredDay.wind} m/s
+          Wind: {hoveredDay.wind} {unit === "metric" ? "m/s" : "mph"}
         </div>
         <div className="flex  items-center gap-2">
           <HumidityIcon
@@ -281,13 +284,13 @@ const MoreDetail = ({
             fontSize={"small"}
             className="w-5 h-5"
           />
-          Visibility: {hoveredDay.visibility} m
+          Visibility: {hoveredDay.visibility} km
         </div>
       </div>
       <div className="flex flex-col gap-3">
         <div className="flex  items-center gap-2">
           <TempIcon sx={{ fontSize: "0.8rem !important" }} />
-          Feels Like: {hoveredDay.feel}°
+          Feels Like: {hoveredDay.feel}° {unit === "metric" ? "C" : "F"}
         </div>
         <div className="flex  items-center gap-2">
           <WaterDropIcon

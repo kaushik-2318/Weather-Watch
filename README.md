@@ -47,7 +47,6 @@ Follow these steps to run the project locally:
    ```env
    NEXT_PUBLIC_OPENWEATHER_API_URL=https://api.openweathermap.org/data/2.5
    NEXT_PUBLIC_OPENWEATHER_API_GEO=https://api.openweathermap.org/geo/1.0
-   NEXT_PUBLIC_IPAPI_URL=https://ipapi.co/json/
    NEXT_PUBLIC_OPENWEATHER_API_KEY=your_api_key_here
    ```
 

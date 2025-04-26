@@ -273,7 +273,7 @@ export default function CurrentWeather({
                         <span className="text-sm">Wind</span>
                       </div>
                       <div className="text-2xl font-semibold text-white mt-1">
-                        {weatherData?.wind.speed} km/h
+                        {weatherData?.wind.speed} {units === "metric" ? "m/s" : "mph"}
                       </div>
                     </div>
 

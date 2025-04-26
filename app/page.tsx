@@ -41,7 +41,7 @@ export default function WeatherDashboard() {
 
   const getCityByIP = useCallback(async () => {
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_IPAPI_URL as string);
+      const response = await fetch("https://ipapi.co/json/");
       const data = await response.json();
       updateLocation(data.latitude, data.longitude);
       currentCoordinate(data.latitude, data.longitude);
