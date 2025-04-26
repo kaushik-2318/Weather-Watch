@@ -25,12 +25,10 @@ export function getFormattedDate(dt: number) {
     return `${dayOfWeek} ${getOrdinalSuffix(day)} ${monthName} ${year}`;
 }
 
-export function getFormattedTime(dt: number) {
-    const date = new Date(dt * 1000);
-
-    const pad = (n: number) => String(n).padStart(2, '0');
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
+export function getFormattedTime(timestamp: number, timezoneOffset: number = 0) {
+    const date = new Date((timestamp + timezoneOffset) * 1000);
+    const hours = date.getUTCHours().toString().padStart(2, "0");
+    const minutes = date.getUTCMinutes().toString().padStart(2, "0");
 
     return `${hours}:${minutes}`;
 }

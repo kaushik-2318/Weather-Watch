@@ -1,207 +1,287 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
-import {
-  Cloud,
-  CloudRain,
-  Sun,
-  Thermometer,
-  Wind,
-  Droplets,
-} from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import Logo from "./Logo";
+import WeatherStore from "@/stores/weather-store";
+import { WeatherStoreType } from "@/lib/types";
 
 export default function PreLoader() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
+  const store: WeatherStoreType = WeatherStore();
+  const { isLoading } = store;
+  const [isVisible, setIsVisible] = useState(true);
+  const [showContent, setShowContent] = useState(false);
+  const [windowHeight, setWindowHeight] = useState(0);
+
+  const timeOfDay = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 17) return "morning";
+    if (hour >= 17 && hour < 21) return "evening";
+    return "night";
+  }, []);
+
+  const colorSchemes = useMemo(
+    () => ({
+      morning: {
+        primary: "#FF6B6B",
+        secondary: "#FFD166",
+        accent: "#4ECDC4",
+        glow: "#FF9E7D",
+        gradient: "linear-gradient(135deg, #FF6B6B 0%, #FFD166 100%)",
+        particles: ["#FF6B6B", "#FFD166", "#4ECDC4", "#FF9E7D", "#FFA8A8"],
+      },
+      evening: {
+        primary: "#845EC2",
+        secondary: "#FF9671",
+        accent: "#F9F871",
+        glow: "#D65DB1",
+        gradient:
+          "linear-gradient(135deg, #845EC2 0%, #D65DB1 50%, #FF9671 100%)",
+        particles: ["#845EC2", "#FF9671", "#F9F871", "#D65DB1", "#B39CD0"],
+      },
+      night: {
+        primary: "#00B8A9",
+        secondary: "#5F7FFF",
+        accent: "#7D5FFF",
+        glow: "#0F3460",
+        gradient:
+          "linear-gradient(135deg, #0F3460 0%, #5F7FFF 50%, #00B8A9 100%)",
+        particles: ["#00B8A9", "#5F7FFF", "#7D5FFF", "#0F3460", "#00F5E9"],
+      },
+    }),
+    []
+  );
+
+  const colors = colorSchemes[timeOfDay];
 
   useEffect(() => {
     if (isLoading) {
-      const timer = setInterval(() => {
-        setProgress((prev) => {
-          const newProgress = prev + (100 - prev) / 15;
-          if (newProgress >= 97.5) {
-            clearInterval(timer);
-            setTimeout(() => {
-              setTimeout(() => setIsLoading(false), 1000);
-            }, 100);
-            return 100;
-          }
-          return newProgress;
-        });
-      }, 100);
+      if (typeof window !== "undefined") {
+        setWindowHeight(window.innerHeight);
+      }
 
-      return () => clearInterval(timer);
+      const showContentTimer = setTimeout(() => {
+        setShowContent(true);
+      }, 500);
+
+      return () => {
+        clearTimeout(showContentTimer);
+      };
+    } else {
+      const exitTimer = setTimeout(() => {
+        setIsVisible(false);
+      }, 800);
+      return () => clearTimeout(exitTimer);
     }
   }, [isLoading]);
+
+  if (!isVisible) return null;
+
+  const orbitalElements = [
+    { size: "80vw", color: colors.primary, duration: 60, scale: [1, 1.05, 1] },
+    { size: "60vw", color: colors.primary, duration: 60, scale: [1, 1.05, 1] },
+    { size: "40vw", color: colors.secondary, duration: 45, reverse: true },
+    { size: "20vw", color: colors.accent, duration: 30 },
+  ];
+
+  const gradientLines = Array(5).fill(null);
 
   return (
     <AnimatePresence>
       {isLoading && (
         <motion.div
-          className="fixed inset-0 z-[999] flex flex-col items-center justify-center overflow-hidden overflow-y-hidden"
+          className="fixed inset-0 z-[999] flex flex-col items-center justify-center overflow-hidden"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
+          exit={{
+            opacity: 0,
+            y: -windowHeight,
+            transition: { duration: 1, ease: [1, 1, 1, 1] },
+          }}
         >
-          <div
-            className={`absolute inset-0 bg-gradient-to-b from-blue-900 via-blue-700 to-blue-500`}
+          {/* Background with dynamic gradient */}
+          <motion.div
+            className="absolute inset-0"
+            style={{ background: `linear-gradient(45deg, #000000, #121212)` }}
+            animate={{
+              background: [
+                `linear-gradient(45deg, #000000, #121212)`,
+                `linear-gradient(45deg, #0a0a0a, #1a1a1a)`,
+                `linear-gradient(45deg, #000000, #121212)`,
+              ],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
           >
-            <div className="absolute inset-0 bg-gradient-to-tr from-purple-900/30 via-transparent to-cyan-900/30 animate-gradient-shift"></div>
+            {/* Color overlay */}
+            <motion.div
+              className="absolute inset-0 opacity-30"
+              style={{
+                background: colors.gradient,
+                filter: "blur(100px)",
+              }}
+              animate={{ opacity: [0.2, 0.4, 0.2] }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+
+            {/* Grid pattern */}
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage: `linear-gradient(${colors.primary}20 1px, transparent 1px), 
+                                 linear-gradient(90deg, ${colors.primary}20 1px, transparent 1px)`,
+                backgroundSize: "40px 40px",
+              }}
+            />
+          </motion.div>
+
+          {/* Orbital rings and dynamic elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            {orbitalElements.map((orbit, i) => (
+              <motion.div
+                key={`orbit-${i}`}
+                className="absolute rounded-full opacity-10"
+                style={{
+                  width: orbit.size,
+                  height: orbit.size,
+                  border: `1px solid ${orbit.color}`,
+                  top: "50%",
+                  left: "50%",
+                  x: "-50%",
+                  y: "-50%",
+                }}
+                animate={{
+                  rotate: orbit.reverse ? -360 : 360,
+                  scale: orbit.scale,
+                }}
+                transition={{
+                  rotate: {
+                    duration: orbit.duration,
+                    repeat: Infinity,
+                    ease: "linear",
+                  },
+                  scale: orbit.scale
+                    ? {
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }
+                    : undefined,
+                }}
+              />
+            ))}
+
+            {/* Dynamic gradient lines */}
+            {gradientLines.map((_, i) => (
+              <motion.div
+                key={`line-${i}`}
+                className="absolute opacity-10"
+                style={{
+                  height: "1px",
+                  width: "100vw",
+                  background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+                  top: `${20 * i}%`,
+                  transform: `rotate(${30 * i}deg)`,
+                  transformOrigin: "center",
+                }}
+                animate={{
+                  opacity: [0.1, 0.2, 0.1],
+                  top: [`${20 * i}%`, `${20 * i + 5}%`, `${20 * i}%`],
+                }}
+                transition={{
+                  duration: 8 + i,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            ))}
           </div>
 
-          <div className="absolute w-[500px] h-[500px] rounded-full bg-blue-400/20 blur-[100px] animate-pulse"></div>
+          {/* Glowing orbs */}
+          <motion.div
+            className="absolute rounded-full blur-[100px]"
+            style={{
+              width: "30vw",
+              height: "30vw",
+              background: `radial-gradient(circle, ${colors.primary}40 0%, transparent 70%)`,
+              top: "50%",
+              left: "50%",
+              x: "-50%",
+              y: "-50%",
+            }}
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
 
           <motion.div
-            className="relative z-10 mb-12"
+            className="absolute rounded-full blur-[100px]"
+            style={{
+              width: "30vw",
+              height: "30vw",
+              background: `radial-gradient(circle, ${colors.secondary}40 0%, transparent 70%)`,
+              bottom: "20%",
+              right: "20%",
+            }}
+            animate={{
+              scale: [1, 1.3, 1],
+              x: [0, -50, 0],
+              y: [0, 50, 0],
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+
+          {/* Logo */}
+          <motion.div
+            className="relative z-10"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <div className="relative w-64 h-64 flex items-center justify-center">
-              {/* Sun */}
-              <motion.div
-                className="absolute"
-                animate={{
-                  rotate: 360,
-                }}
-                transition={{
-                  duration: 20,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                }}
-              >
-                <div className="relative">
-                  <Sun
-                    size={120}
-                    className="text-yellow-400 drop-shadow-[0_0_30px_rgba(250,204,21,0.7)]"
-                  />
-                  <div className="absolute inset-0 bg-yellow-400 rounded-full blur-xl opacity-30 animate-pulse"></div>
-                </div>
-              </motion.div>
-
-              {/* Cloud 1 */}
-              <motion.div
-                className="absolute"
-                initial={{ x: -80, y: -20 }}
-                animate={{
-                  x: [-80, 80, -80],
-                  y: [-20, -40, -20],
-                }}
-                transition={{
-                  duration: 8,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                }}
-              >
-                <div className="relative">
-                  <Cloud size={60} className="text-white/90 drop-shadow-lg" />
-                  <div className="absolute inset-0 bg-white rounded-full blur-xl opacity-20"></div>
-                </div>
-              </motion.div>
-
-              {/* Cloud 2 */}
-              <motion.div
-                className="absolute"
-                initial={{ x: 60, y: 30 }}
-                animate={{
-                  x: [60, -40, 60],
-                  y: [30, 50, 30],
-                }}
-                transition={{
-                  duration: 10,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                }}
-              >
-                <CloudRain size={50} className="text-blue-300 drop-shadow-lg" />
-              </motion.div>
-
-              {/* Thermometer */}
-              <motion.div
-                className="absolute"
-                initial={{ x: 0, y: 80 }}
-                animate={{
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                }}
-              >
-                <Thermometer
-                  size={40}
-                  className="text-red-400 drop-shadow-lg"
-                />
-              </motion.div>
-
-              {/* Wind */}
-              <motion.div
-                className="absolute"
-                initial={{ x: -60, y: 60 }}
-                animate={{
-                  rotate: [0, 10, -10, 0],
-                  x: [-60, -50, -60],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                }}
-              >
-                <Wind size={40} className="text-cyan-300 drop-shadow-lg" />
-              </motion.div>
-
-              {/* Droplets */}
-              <motion.div
-                className="absolute"
-                initial={{ x: 70, y: -50 }}
-                animate={{
-                  y: [-50, -40, -50],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                }}
-              >
-                <Droplets size={35} className="text-blue-400 drop-shadow-lg" />
-              </motion.div>
-            </div>
+            <Logo size="xl" timeOfDay={timeOfDay} />
           </motion.div>
 
+          {/* Content text */}
           <AnimatePresence>
-            <motion.div
-              className="relative z-10 text-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: "easeOut" }}
-            >
-              <h1 className="text-5xl font-bold text-white tracking-tight">
-                Weather<span className="text-blue-300">Watch</span>
-              </h1>
-            </motion.div>
-          </AnimatePresence>
-
-          <motion.div
-            className="absolute bottom-24 left-1/2 transform -translate-x-1/2 w-64 z-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
-            <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden">
+            {showContent && (
               <motion.div
-                className="h-full bg-gradient-to-r from-blue-400 to-cyan-300 rounded-full"
-                style={{ width: `${progress}%` }}
-                initial={{ width: "0%" }}
-                transition={{ duration: 0.3 }}
-              />
-            </div>
-            <div className="mt-2 text-center text-white/70 text-sm">
-              {Math.round(progress)}%
-            </div>
-          </motion.div>
+                className="absolute z-10 text-center bottom-28"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              >
+                <h1 className="text-5xl font-bold mb-2 tracking-tight">
+                  <span
+                    style={{
+                      background: colors.gradient,
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      textShadow: `0 2px 10px ${colors.glow}80`,
+                    }}
+                  >
+                    Weather
+                  </span>
+                  <span className="text-white font-light">Watch</span>
+                </h1>
+                <p className="text-gray-300 text-lg">
+                  Your personal weather companion
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>

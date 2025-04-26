@@ -197,9 +197,9 @@ export default function CurrentWeather({
 
               <CardDescription>
                 <div className="flex flex-col gap-6 px-6">
-                  <div className="flex">
+                  <div className="flex justify-between items-center gap-10">
                     <div className=" bg-black/40 backdrop-blur-sm border border-white/10 p-3 rounded-2xl">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 ">
                         <div className="relative">
                           {getWeatherIcon(weatherData.weather[0].main)}
                         </div>
@@ -239,6 +239,12 @@ export default function CurrentWeather({
                           </div>
                         </div>
                       </div>
+                    </div>
+                    <div className="hidden sm:block  sm:text-7xl text-white">
+                      <div className="text-white/60 text-right text-xs">
+                        Current Time:
+                      </div>
+                      {getFormattedTime(weatherData?.dt, weatherData?.timezone)}
                     </div>
                   </div>
 

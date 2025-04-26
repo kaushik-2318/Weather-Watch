@@ -9,6 +9,7 @@ import { WeatherStoreType } from "@/lib/types";
 import WeatherStore from "@/stores/weather-store";
 import { AnimatePresence } from "framer-motion";
 import HistoryPanel from "./HistoryPanel";
+import Logo from "./Logo";
 
 type WeatherHeaderProps = {
   searchPanelOpen: boolean;
@@ -76,7 +77,13 @@ export default function WeatherHeader({
     <>
       <nav className="fixed w-full flex justify-center items-center z-[52]">
         <div className="flex items-center justify-between w-[98%] px-4 md:px-10 py-3 mt-3 backdrop-blur-md bg-black/10 text-white rounded-3xl">
-          <h1 className="text-sm md:text-lg font-bold tracking-widest ">
+          <h1 className="text-sm md:text-lg font-bold tracking-widest flex justify-between items-center gap-1 md:gap-5">
+            <div className="md:hidden">
+              <Logo size="xs" circle={false} />
+            </div>
+            <div className="hidden md:block">
+              <Logo size="sm" circle={false} />
+            </div>
             Weather Watch
           </h1>
           {data && (
@@ -88,7 +95,8 @@ export default function WeatherHeader({
             >
               <LocationOnIcon fontSize="small" />
               <span>
-                Weather in {data.name} / {data.sys.country}
+                Weather in {data.name}{" "}
+                <span className="hidden sm:inline"> / {data.sys.country}</span>
               </span>
             </div>
           )}

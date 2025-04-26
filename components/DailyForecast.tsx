@@ -149,10 +149,10 @@ export default function DailyForecast() {
         <div className="xl:w-[60%] w-full overflow-hidden">
           <Card className="bg-white/10 backdrop-blur-lg border border-white/10 shadow-lg transition-all duration-500">
             <CardTitle>
-              <h1 className="px-7">5 Day Forecast</h1>
+              <h1 className="px-4 ">5 Day Forecast</h1>
             </CardTitle>
             <CardContent>
-              <div className="flex duration-500 justify-between w-full overflow-hidden overflow-x-visible gap-5">
+              <div className="flex duration-500 justify-between w-full overflow-hidden overflow-x-visible gap-5 p-2">
                 {dailyForecast?.map((day, index) => (
                   <div
                     key={index}

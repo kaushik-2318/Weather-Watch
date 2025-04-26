@@ -41,7 +41,7 @@ export default function WeatherDashboard() {
 
   const getCityByIP = useCallback(async () => {
     try {
-      const response = await fetch("https://ipapi.co/json/");
+      const response = await fetch(process.env.NEXT_PUBLIC_IPAPI_URL as string);
       const data = await response.json();
       updateLocation(data.latitude, data.longitude);
       currentCoordinate(data.latitude, data.longitude);
@@ -68,7 +68,7 @@ export default function WeatherDashboard() {
       updateLocation(lat, lon);
       currentCoordinate(lat, lon);
     } catch (error) {
-      toast.error("Unable to fetch location");
+      toast.error("Unable to fetch location, fetching by IP... ");
       console.error("Error getting location:", error);
       await getCityByIP();
     }
@@ -102,7 +102,7 @@ export default function WeatherDashboard() {
     } else if (hour >= 16 && hour < 19) {
       setBackgroundImage("/backgrounds/evening.jpg");
     } else {
-      setBackgroundImage("/backgrounds/morning.png");
+      setBackgroundImage("/backgrounds/night.jpg");
     }
   }, []);
 

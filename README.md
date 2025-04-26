@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Weather Watch
 
-First, run the development server:
+**Weather Watch** is a modern, responsive weather dashboard built using **Next.js 15** and **React 19**, providing real-time weather updates, forecasts, and visual insights in an interactive and user-friendly interface.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+![Weather Watch Dashboard](./public/dashboard_screenshot.png)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Real-time Weather Data:** View current conditions, 5-day forecasts, and air quality information.
+- **Interactive Visualizations:** Analyze temperature trends, humidity levels, wind speed, and more with **Recharts** and **Chart.js**.
+- **Geolocation Support:** Automatically detect user location with IP-based fallback.
+- **Unit Conversion:** Easily toggle between Metric (°C) and Imperial (°F) units.
+- **Global Search:** Search and view weather details for any location worldwide.
+- **Responsive Design:** Fully optimized for mobile, tablet, and desktop devices.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠 Tech Stack
 
-## Learn More
+- **Framework:** Next.js 15 (App Router)
+- **Frontend:** React 19, Tailwind CSS, Framer Motion
+- **State Management:** Zustand
+- **Data Visualization:** Recharts, Chart.js
+- **API Integration:** OpenWeather API
+- **Build Tool:** Turbopack
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Getting Started
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Follow these steps to run the project locally:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/kaushik-2318/weather-watch.git
+   cd weather-watch
+   ```
 
-## Deploy on Vercel
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Set up environment variables:**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   Create a `.env` file at the root of your project with the following contents:
+
+   ```env
+   NEXT_PUBLIC_OPENWEATHER_API_URL=https://api.openweathermap.org/data/2.5
+   NEXT_PUBLIC_OPENWEATHER_API_GEO=https://api.openweathermap.org/geo/1.0
+   NEXT_PUBLIC_IPAPI_URL=https://ipapi.co/json/
+   NEXT_PUBLIC_OPENWEATHER_API_KEY=your_api_key_here
+   ```
+
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the app in action.
+
+## 📚 Learn More
+
+Here are some useful resources to learn more about the technologies used:
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [React Documentation](https://react.dev/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Framer Motion Documentation](https://www.framer.com/motion/)
+- [OpenWeather API Documentation](https://openweathermap.org/api)
+
+## 📄 License
+
+This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.
+
+To view a copy of this license, visit [http://creativecommons.org/licenses/by-nc/4.0/](http://creativecommons.org/licenses/by-nc/4.0/).
+
+You are free to:
+
+- Share — copy and redistribute the material in any medium or format
+- Adapt — remix, transform, and build upon the material
+
+Under the following terms:
+
+- Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
+- NonCommercial — You may not use the material for commercial purposes.
+
+No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+## 👨‍💻 Author
+
+**Kaushik Verma**  
+[LinkedIn](https://www.linkedin.com/in/kaushik-verma-2b5515254/) | [Portfolio](https://kaushikverma.me/)
