@@ -97,7 +97,7 @@ export default function WeatherDashboard() {
 
   useEffect(() => {
     const hour = new Date().getHours();
-    if (hour >= 6 && hour < 17) {
+    if (hour >= 5 && hour < 16) {
       setBackgroundImage("/backgrounds/morning.png");
     } else if (hour >= 16 && hour < 19) {
       setBackgroundImage("/backgrounds/evening.jpg");

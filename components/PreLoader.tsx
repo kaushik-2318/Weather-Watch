@@ -15,8 +15,8 @@ export default function PreLoader() {
 
   const timeOfDay = useMemo(() => {
     const hour = new Date().getHours();
-    if (hour >= 5 && hour < 17) return "morning";
-    if (hour >= 17 && hour < 21) return "evening";
+    if (hour >= 5 && hour < 16) return "morning";
+    if (hour >= 16 && hour < 19) return "evening";
     return "night";
   }, []);
 

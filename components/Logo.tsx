@@ -33,11 +33,10 @@ export default function Logo({
       setCurrentTimeOfDay(timeOfDay);
       return;
     }
-
     const hour = new Date().getHours();
-    if (hour >= 5 && hour < 17) {
+    if (hour >= 5 && hour < 16) {
       setCurrentTimeOfDay("morning");
-    } else if (hour >= 17 && hour < 21) {
+    } else if (hour >= 16 && hour < 19) {
       setCurrentTimeOfDay("evening");
     } else {
       setCurrentTimeOfDay("night");
