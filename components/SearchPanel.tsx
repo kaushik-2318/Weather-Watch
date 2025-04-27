@@ -7,6 +7,7 @@ import LocationStore from "@/stores/location-store";
 import { searchLocation } from "@/lib/api";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { codeToCountry } from "@/lib/codeToCountry";
 
 interface SearchPanelProps {
   setSearchPanelOpen: (open: boolean) => void;
@@ -55,6 +56,7 @@ export default function SearchPanel({
       try {
         const res = await searchLocation(query, "metric", country);
         const data = await res.json();
+        console.log(data);
         if (data.length) {
           setSearchResults(data);
         } else {
@@ -146,7 +148,8 @@ export default function SearchPanel({
                     }
                     key={index}
                   >
-                    {detail.name}, {detail.state || ""}, {detail.country}
+                    {detail.name}, {detail.state || ""},{" "}
+                    {codeToCountry(detail.country)}
                   </li>
                 ))}
               </ul>
