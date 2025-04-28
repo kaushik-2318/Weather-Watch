@@ -102,7 +102,7 @@ export default function WeatherDashboard() {
     } else if (hour >= 16 && hour < 19) {
       setBackgroundImage("/backgrounds/evening.jpg");
     } else {
-      setBackgroundImage("/backgrounds/night.jpg");
+      setBackgroundImage("/backgrounds/night.png");
     }
   }, []);
 
