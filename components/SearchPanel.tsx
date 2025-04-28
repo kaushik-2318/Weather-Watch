@@ -133,7 +133,7 @@ export default function SearchPanel({
 
         {searchResults.length > 0 ? (
           <div
-            className="absolute backdrop-blur-xl bg-black/40 text-white font-light mt-2 rounded-md p-2 w-[600px] max-h-[250px] overflow-y-auto scroll-m-10 shadow-lg"
+            className="absolute backdrop-blur-xl bg-black/40 text-white font-light mt-2 rounded-md p-2 max-h-[250px] overflow-y-auto scroll-m-10 shadow-lg block max-w-[600px] w-[350px] sm:w-[500px] lg:w-[600px]"
             ref={menuRef}
           >
             <div className="p-1">
